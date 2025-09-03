@@ -55,7 +55,30 @@
 - 自动表结构初始化
 - 集成ID生成器
 
+### Git版本控制管理
+- **Git管理工具** - 完整的Git操作功能
+- **Git快速操作** - 常用Git工作流程
+- **Git工作流程** - Git Flow工作流程管理
+- 支持分支管理、提交、推送、合并等操作
+- 提供图形化菜单界面，简化Git操作
+
 ## 快速开始
+
+### 使用管理脚本（推荐）
+
+1. 启动主菜单：
+```bash
+scripts/start.bat
+```
+
+2. 选择相应功能：
+   - 编译项目
+   - 启动服务器
+   - 管理Git版本控制
+   - 数据库管理
+   - 热更新等
+
+### 手动操作
 
 1. 编译项目：
 ```bash
@@ -75,6 +98,20 @@ test_system:demo().
 4. 单独测试日志系统：
 ```erlang
 test_logger:test().
+```
+
+### Git版本控制
+
+1. 通过主菜单访问Git工具：
+   - 选择 `7` 进入Git管理工具
+   - 选择 `8` 进入Git快速操作
+   - 选择 `9` 进入Git工作流程
+
+2. 直接运行Git脚本：
+```bash
+scripts/git_manager.bat      # Git管理工具
+scripts/git_quick.bat        # Git快速操作
+scripts/git_workflow.bat     # Git工作流程
 ```
 
 ## 下一步建议

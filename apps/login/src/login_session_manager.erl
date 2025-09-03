@@ -21,7 +21,7 @@ lookup(Token) ->
     gen_server:call(?MODULE, {lookup, Token}).
 
 handle_call({create, User}, _From, State = #{table := Table}) ->
-    Token = crypto:strong_rand_bytes(12) |> base64:encode_to_string(),
+    Token = base64:encode_to_string(crypto:strong_rand_bytes(12)),
     ets:insert(Table, {Token, User, erlang:system_time(seconds)}),
     {reply, {ok, Token}, State};
 handle_call({lookup, Token}, _From, State = #{table := Table}) ->
