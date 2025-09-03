@@ -2,6 +2,9 @@
 -module(rpc_server).
 -behaviour(gen_server).
 
+%% 包含协议定义
+-include("rpc_protocol.hrl").
+
 -export([
     start_link/0,
     start_listener/1,
@@ -78,7 +81,7 @@ handle_info({tcp_error, Socket, Reason}, State) ->
 handle_info(_Info, State) ->
     {noreply, State}.
 
-terminate(_Reason, State = #state{listener_socket = ListenSocket}) ->
+terminate(_Reason, _State = #state{listener_socket = ListenSocket}) ->
     case ListenSocket of
         undefined -> ok;
         _ -> gen_tcp:close(ListenSocket)
@@ -93,19 +96,22 @@ start_listener_socket(Port) ->
     Options = [
         binary,
         {packet, 0},
-        {active, false},
+        {active, true},
         {reuseaddr, true},
         {backlog, 128}
     ],
     gen_tcp:listen(Port, Options).
 
 %% 处理客户端消息
-handle_client_message(Socket, Data, State) ->
+handle_client_message(Socket, Data, _State) ->
     case rpc_protocol:decode_message(Data) of
-        {ok, Message} ->
+        #rpc_message{} = Message ->
             process_rpc_message(Socket, Message);
         {error, Reason} ->
             io:format("Failed to decode message: ~p~n", [Reason]),
+            send_error_response(Socket, "Invalid message format");
+        _ ->
+            io:format("Invalid message format~n"),
             send_error_response(Socket, "Invalid message format")
     end.
 
@@ -175,21 +181,23 @@ send_response(Socket, Response) ->
         {ok, EncodedData} ->
             gen_tcp:send(Socket, EncodedData);
         {error, _Reason} ->
+            send_error_response(Socket, "Failed to encode response");
+        _ ->
             send_error_response(Socket, "Failed to encode response")
     end.
 
 %% 发送错误响应
 send_error_response(Socket, Error) ->
-    ErrorResponse = rpc_protocol:create_response(undefined, undefined, Error),
+    ErrorResponse = rpc_protocol:create_response(0, undefined, Error),
     send_response(Socket, ErrorResponse).
 
 %% 发送确认
 send_ack(Socket) ->
-    AckResponse = rpc_protocol:create_response(undefined, "OK", undefined),
+    AckResponse = rpc_protocol:create_response(0, "OK", undefined),
     send_response(Socket, AckResponse).
 
 %% 处理客户端断开连接
-handle_client_disconnect(Socket, State) ->
+handle_client_disconnect(Socket, _State) ->
     io:format("Client disconnected: ~p~n", [Socket]),
     gen_tcp:close(Socket),
-    State. 
+    ok. 
