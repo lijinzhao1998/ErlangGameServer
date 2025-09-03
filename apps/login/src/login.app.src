@@ -1,4 +1,3 @@
-```erlang
 {application, login,
  [{description, "Login server"},
   {vsn, "0.1.0"},
@@ -8,4 +7,3 @@
   {mod, {login_app, []}},
   {env, []}
  ]}.
-```

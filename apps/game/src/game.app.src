@@ -1,4 +1,3 @@
-```erlang
 {application, game,
  [{description, "Game server (skeleton)"},
   {vsn, "0.1.0"},
@@ -8,4 +7,3 @@
   {mod, {game_app, []}},
   {env, []}
  ]}.
-```
