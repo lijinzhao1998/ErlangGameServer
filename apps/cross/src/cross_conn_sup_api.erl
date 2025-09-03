@@ -1,5 +1,5 @@
 %% Public API module to start children under the DynamicSupervisor started by dynamic_supervisor_wrapper.
--module(cross_conn_sup).
+-module(cross_conn_sup_api).
 -export([start_child/1]).
 
 start_child(Socket) ->

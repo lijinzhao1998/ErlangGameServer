@@ -1,5 +1,5 @@
 -module(test_system).
--export([test_all/0, test_logger/0, test_id_generator/0, test_mdb/0, test_items_and_guilds/0, test_auth/0, test_player/0]).
+-export([test_all/0, test_logger/0, test_id_generator/0, test_mdb/0, test_items_and_guilds/0, test_auth/0, test_player/0, demo/0]).
 
 %% 测试所有功能
 test_all() ->
