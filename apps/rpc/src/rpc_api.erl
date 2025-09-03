@@ -36,6 +36,18 @@
     echo/1
 ]).
 
+%% 内部函数：获取服务信息记录字段
+-record(service_info, {
+    name,           % 服务名称
+    node,           % 节点名称
+    pid,            % 进程ID
+    address,        % 服务地址
+    port,           % 服务端口
+    status,         % 服务状态
+    last_heartbeat, % 最后心跳时间
+    metadata        % 服务元数据
+}).
+
 %% 服务注册和发现
 
 %% 注册当前节点上的服务
@@ -144,15 +156,3 @@ ping(Service) ->
 %% Echo测试
 echo(Message) ->
     call(echo_service, echo, Message, 1000).
-
-%% 内部函数：获取服务信息记录字段
--record(service_info, {
-    name,           % 服务名称
-    node,           % 节点名称
-    pid,            % 进程ID
-    address,        % 服务地址
-    port,           % 服务端口
-    status,         % 服务状态
-    last_heartbeat, % 最后心跳时间
-    metadata        % 服务元数据
-}). 
