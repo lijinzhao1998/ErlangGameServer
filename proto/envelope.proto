@@ -1,0 +1,31 @@
+syntax = "proto3";
+package cross;
+
+// Envelope 用于承载业务消息
+message Envelope {
+  uint64 msg_id = 1;
+  uint32 msg_type = 2;    // 0=request,1=response,2=event...
+  string route = 3;
+  bytes body = 4;         // 真实业务消息（二进制，通常是其他 protobuf message 的 encode）
+}
+
+// 登录请求
+message LoginReq {
+  string username = 1;
+  string password = 2;
+}
+
+// 登录响应，包含会话 token 和分配到的 cross 服务信息
+message LoginResp {
+  uint32 code = 1;           // 0 success
+  string message = 2;
+  string session_token = 3;  // 随机/UUID token
+  string cross_host = 4;     // 分配到的 cross node host
+  uint32 cross_port = 5;     // 分配到的 cross node port
+  uint64 expires_at = 6;     // UTC epoch seconds
+}
+
+// 心跳
+message Heartbeat {
+  uint64 ts = 1;
+}
