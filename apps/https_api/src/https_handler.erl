@@ -2,7 +2,7 @@
 
 -export([handle_request/1]).
 
-handle_request(#{method := Method, path := Path} = Request) ->
+handle_request(#{method := _Method, path := Path} = Request) ->
     case parse_path(Path) of
         {sdk, "login", _} ->
             sdk_auth:handle_login(Request);

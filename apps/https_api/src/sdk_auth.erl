@@ -36,7 +36,7 @@ handle_login(#{method := "POST"} = Request) ->
                 }
         end
     catch
-        _:Error ->
+        _:_Error ->
             #{
                 status => 400,
                 headers => [{"Content-Type", "application/json"}],
@@ -92,7 +92,7 @@ handle_verify_token(#{method := "POST"} = Request) ->
                 }
         end
     catch
-        _:Error ->
+        _:_Error ->
             #{
                 status => 400,
                 headers => [{"Content-Type", "application/json"}],
@@ -147,7 +147,7 @@ handle_refresh_token(#{method := "POST"} = Request) ->
                 }
         end
     catch
-        _:Error ->
+        _:_Error ->
             #{
                 status => 400,
                 headers => [{"Content-Type", "application/json"}],
@@ -244,11 +244,11 @@ refresh_access_token(RefreshToken) ->
 generate_session_id() ->
     crypto:strong_rand_bytes(16).
 
-generate_access_token(RoleId) ->
+generate_access_token(_RoleId) ->
     % 这里应该生成实际的JWT令牌
     base64:encode(crypto:strong_rand_bytes(32)).
 
-generate_refresh_token(RoleId) ->
+generate_refresh_token(_RoleId) ->
     % 这里应该生成实际的刷新令牌
     base64:encode(crypto:strong_rand_bytes(32)).
 
@@ -258,14 +258,14 @@ store_session(SessionId, SessionData) ->
 
 get_session_by_token(AccessToken) ->
     % 这里应该从数据库或缓存中查找
-    case ets:match_object(sdk_sessions, {'_', #{access_token := AccessToken}}) of
+    case ets:match_object(sdk_sessions, {'_', #{access_token => AccessToken}}) of
         [{_SessionId, Session}] -> {ok, Session};
         [] -> error
     end.
 
 get_session_by_refresh_token(RefreshToken) ->
     % 这里应该从数据库或缓存中查找
-    case ets:match_object(sdk_sessions, {'_', #{refresh_token := RefreshToken}}) of
+    case ets:match_object(sdk_sessions, {'_', #{refresh_token => RefreshToken}}) of
         [{_SessionId, Session}] -> {ok, Session};
         [] -> error
     end.

@@ -138,8 +138,8 @@ handle_request(Socket, #rpc_message{id = Id, service = Service, method = Method,
         Response = rpc_protocol:create_response(Id, Result, undefined),
         send_response(Socket, Response)
     catch
-        _:Error ->
-            ErrorResponse = rpc_protocol:create_response(Id, undefined, atom_to_list(Error)),
+        _:_Error ->
+            ErrorResponse = rpc_protocol:create_response(Id, undefined, "Internal error"),
             send_response(Socket, ErrorResponse)
     end.
 
