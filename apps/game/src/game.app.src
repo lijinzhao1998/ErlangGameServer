@@ -1,0 +1,11 @@
+```erlang
+{application, game,
+ [{description, "Game server (skeleton)"},
+  {vsn, "0.1.0"},
+  {modules, [game_app, game_sup, game_router, game_player_sup, game_player]},
+  {registered, []},
+  {applications, [kernel, stdlib]},
+  {mod, {game_app, []}},
+  {env, []}
+ ]}.
+```

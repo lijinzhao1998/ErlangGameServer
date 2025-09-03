@@ -1,0 +1,11 @@
+```erlang
+{application, login,
+ [{description, "Login server"},
+  {vsn, "0.1.0"},
+  {modules, [login_app, login_sup, login_listener, login_handler, login_session_manager]},
+  {registered, []},
+  {applications, [kernel, stdlib]},
+  {mod, {login_app, []}},
+  {env, []}
+ ]}.
+```

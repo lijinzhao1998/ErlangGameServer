@@ -1,0 +1,9 @@
+{application, cross,
+ [{description, "Cross / gateway server (skeleton)"},
+  {vsn, "0.1.0"},
+  {modules, [cross_app]},
+  {registered, []},
+  {applications, [kernel, stdlib]},
+  {mod, {cross_app, []}},
+  {env, []}
+ ]}.
