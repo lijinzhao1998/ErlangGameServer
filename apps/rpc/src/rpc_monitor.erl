@@ -66,7 +66,7 @@ handle_call(_Request, _From, State) ->
     {reply, {error, bad_request}, State}.
 
 handle_cast({add_connection, Id, ConnectionInfo}, State) ->
-    Connections = State#state.connections#{Id => ConnectionInfo},
+    Connections = maps:put(Id, ConnectionInfo, State#state.connections),
     ConnectionCount = State#state.connection_count + 1,
     {noreply, State#state{connections = Connections, connection_count = ConnectionCount}};
 
@@ -79,7 +79,7 @@ handle_cast(_Msg, State) ->
 
 handle_info(monitor_tick, State) ->
     % 执行监控任务
-    monitor_connections(State),
+    _ = monitor_connections(State),
     
     % 重新启动定时器
     Timer = erlang:send_after(60000, self(), monitor_tick),
