@@ -237,7 +237,7 @@ handle_items(#{method := "POST"} = Request) ->
                 }
         end
     catch
-        _:Error ->
+        _:_Error ->
             #{
                 status => 400,
                 headers => [{"Content-Type", "application/json"}],

@@ -16,6 +16,10 @@
 %% gen_server
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
 
+%% Internal functions (exported to suppress unused warnings)
+-export([handle_envelope/5, handle_login/4, send_login_error/3, ssl_send_protobuf_response/3,
+         check_user_credentials/3, choose_cross_node/1, store_session/6, epoch_to_pgts/1, make_uuid_v4/0]).
+
 -include_lib("kernel/include/logger.hrl").
 
 -record(state, {
@@ -97,7 +101,7 @@ accept_loop(ListenSocket, PgConn) ->
     case ssl:transport_accept(ListenSocket) of
         {ok, S} ->
             %% Handshake (sync)
-            case ssl:ssl_accept(S, [{timeout, 5000}]) of
+            case ssl:handshake(S, [{timeout, 5000}]) of
                 ok ->
                     spawn_link(fun() -> handle_connection(S, PgConn) end),
                     accept_loop(ListenSocket, PgConn);
@@ -138,7 +142,7 @@ loop_recv(Socket, PgConn) ->
                             ok
                     end;
                 _Other ->
-                    ?LOG_ERROR("Unsupported serializer: ~p", [Other]),
+                    ?LOG_ERROR("Unsupported serializer: ~p", [_Other]),
                     ok
             end;
         {error, closed} ->
@@ -154,7 +158,7 @@ handle_envelope(Socket, PgConn, MsgId, MsgType, EnvelopeMap) ->
         "account.login" ->
             handle_login(Socket, PgConn, MsgId, Body);
         _ ->
-            ?LOG_WARN("Unknown route ~p", [Route]),
+            ?LOG_WARNING("Unknown route ~p", [Route]),
             ok
     end.
 
