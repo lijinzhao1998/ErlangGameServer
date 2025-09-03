@@ -15,7 +15,7 @@ handle_stats(#{method := "GET"} = _Request) ->
             })
         }
     catch
-        _:Error ->
+        _:_Error ->
             #{
                 status => 500,
                 headers => [{"Content-Type", "application/json"}],
@@ -39,7 +39,7 @@ handle_stats(_) ->
     }.
 
 %% 玩家管理
-handle_players(#{method := "GET"} = Request) ->
+handle_players(#{method := "GET"} = _Request) ->
     try
         Players = get_players_list(),
         #{
@@ -51,7 +51,7 @@ handle_players(#{method := "GET"} = Request) ->
             })
         }
     catch
-        _:Error ->
+        _:_Error ->
             #{
                 status => 500,
                 headers => [{"Content-Type", "application/json"}],
@@ -89,7 +89,7 @@ handle_players(#{method := "POST"} = Request) ->
                 }
         end
     catch
-        _:Error ->
+        _:_Error ->
             #{
                 status => 400,
                 headers => [{"Content-Type", "application/json"}],
@@ -125,7 +125,7 @@ handle_guilds(#{method := "GET"} = _Request) ->
             })
         }
     catch
-        _:Error ->
+        _:_Error ->
             #{
                 status => 500,
                 headers => [{"Content-Type", "application/json"}],
@@ -163,7 +163,7 @@ handle_guilds(#{method := "POST"} = Request) ->
                 }
         end
     catch
-        _:Error ->
+        _:_Error ->
             #{
                 status => 400,
                 headers => [{"Content-Type", "application/json"}],
@@ -199,7 +199,7 @@ handle_items(#{method := "GET"} = _Request) ->
             })
         }
     catch
-        _:Error ->
+        _:_Error ->
             #{
                 status => 500,
                 headers => [{"Content-Type", "application/json"}],
@@ -273,7 +273,7 @@ handle_system_info(#{method := "GET"} = _Request) ->
             })
         }
     catch
-        _:Error ->
+        _:_Error ->
             #{
                 status => 500,
                 headers => [{"Content-Type", "application/json"}],
@@ -310,7 +310,7 @@ handle_logs(#{method := "GET"} = Request) ->
             })
         }
     catch
-        _:Error ->
+        _:_Error ->
             #{
                 status => 500,
                 headers => [{"Content-Type", "application/json"}],
@@ -410,7 +410,7 @@ collect_system_info() ->
         ports => erlang:system_info(port_count)
     }.
 
-query_logs(QueryParams) ->
+query_logs(_QueryParams) ->
     % 查询日志
     % 这里应该调用实际的日志查询
     [
@@ -419,17 +419,17 @@ query_logs(QueryParams) ->
         #{timestamp => "2024-01-01 10:02:00", level => "warning", message => "数据库连接延迟"}
     ].
 
-create_player(PlayerData) ->
+create_player(_PlayerData) ->
     % 创建玩家
     % 这里应该调用实际的数据库操作
     {ok, 1003}.
 
-create_guild(GuildData) ->
+create_guild(_GuildData) ->
     % 创建公会
     % 这里应该调用实际的数据库操作
     {ok, 40003}.
 
-create_item(ItemData) ->
+create_item(_ItemData) ->
     % 创建物品
     % 这里应该调用实际的数据库操作
     {ok, 50004}.

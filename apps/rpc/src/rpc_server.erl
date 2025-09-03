@@ -155,7 +155,7 @@ handle_notification(Socket, #rpc_message{service = Service, method = Method}) ->
         handle_service_notification(Service, Method),
         send_ack(Socket)
     catch
-        _:Error ->
+        _:_Error ->
             send_error_response(Socket, "Notification failed")
     end.
 

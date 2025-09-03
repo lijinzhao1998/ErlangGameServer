@@ -27,8 +27,8 @@ test() ->
     try
         throw(test_exception)
     catch
-        _:Reason:StackTrace ->
-            logger:log_with_stack(error, ?MODULE, "捕获到测试异常: ~p", [Reason], StackTrace)
+        _:TestReason:TestStackTrace ->
+            logger:log_with_stack(error, ?MODULE, "捕获到测试异常: ~p", [TestReason], TestStackTrace)
     end,
     
     %% 测试带参数的堆栈日志
@@ -40,8 +40,8 @@ test() ->
     try
         lists:nth(10, [1, 2, 3])
     catch
-        _:Reason:StackTrace ->
-            logger:log_with_stack(error, ?MODULE, "列表索引越界: ~p", [Reason], StackTrace)
+        _:ListReason:ListStackTrace ->
+            logger:log_with_stack(error, ?MODULE, "列表索引越界: ~p", [ListReason], ListStackTrace)
     end,
     
     io:format("~n=== 日志测试完成 ===~n"),

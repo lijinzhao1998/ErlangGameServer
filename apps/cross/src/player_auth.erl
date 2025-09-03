@@ -76,7 +76,7 @@ do_login(Username, Password, State) ->
                         expire_time => erlang:system_time(seconds) + ?SESSION_TIMEOUT
                     },
                     %% 更新会话状态
-                    NewState = State#{sessions => maps:put(SessionId, SessionData, maps:get(sessions, State))},
+                    _NewState = State#{sessions => maps:put(SessionId, SessionData, maps:get(sessions, State))},
                     
                     %% 更新最后登录时间
                     mdb:update_player(#{role_id => RoleId, last_login_time => erlang:system_time(seconds)}),

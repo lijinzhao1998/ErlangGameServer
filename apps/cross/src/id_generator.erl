@@ -229,13 +229,19 @@ generate_next_id(Type, State) ->
     end.
 
 %% 批量生成ID（可选功能）
+%% @doc 批量生成指定类型的ID，用于批量操作
+%% @spec generate_batch_ids(Type, Count) -> {ok, [Id]} | {error, Reason}
 generate_batch_ids(Type, Count) ->
     gen_server:call(?MODULE, {generate_batch_ids, Type, Count}).
 
 %% 重置ID计数器（谨慎使用）
+%% @doc 重置指定类型的ID计数器，仅用于维护和调试
+%% @spec reset_id_counter(Type, NewValue) -> ok | {error, Reason}
 reset_id_counter(Type, NewValue) ->
     gen_server:call(?MODULE, {reset_id_counter, Type, NewValue}).
 
 %% 获取当前ID状态
+%% @doc 获取所有ID类型的当前状态，用于监控和调试
+%% @spec get_id_status() -> {ok, #{Type => CurrentId}}
 get_id_status() ->
     gen_server:call(?MODULE, get_id_status). 
