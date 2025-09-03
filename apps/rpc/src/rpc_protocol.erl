@@ -1,34 +1,21 @@
-%% RPC协议处理模块
+%% RPC协议模块
 -module(rpc_protocol).
+
+%% 包含协议定义
+-include("rpc_protocol.hrl").
+
 -export([
-    encode_message/1,
-    decode_message/1,
     create_request/4,
     create_response/3,
     create_notification/2,
     create_heartbeat/0,
+    encode_message/1,
+    decode_message/1,
     is_heartbeat/1,
     get_message_type/1
 ]).
 
-%% 消息类型定义
--define(MSG_TYPE_REQUEST, 1).
--define(MSG_TYPE_RESPONSE, 2).
--define(MSG_TYPE_NOTIFICATION, 3).
--define(MSG_TYPE_HEARTBEAT, 4).
 
-%% 消息结构
--record(rpc_message, {
-    type,           % 消息类型
-    id,             % 消息ID（请求/响应）
-    service,        % 服务名称
-    method,         % 方法名称
-    params,         % 参数
-    result,         % 结果（响应）
-    error,          % 错误信息
-    timestamp,      % 时间戳
-    version         % 协议版本
-}).
 
 %% 创建请求消息
 create_request(Service, Method, Params, Id) ->

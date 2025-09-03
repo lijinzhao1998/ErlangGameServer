@@ -2,6 +2,9 @@
 -module(rpc_client).
 -behaviour(gen_server).
 
+%% 包含协议定义
+-include("rpc_protocol.hrl").
+
 -export([
     start_link/2,
     call/3,
@@ -75,7 +78,7 @@ handle_call({call, Service, Method, Params, Timeout}, From, State) ->
     case send_request(Request, State#state.socket) of
         ok ->
             % 存储待处理的请求
-            PendingRequests = State#state.pending_requests#{MessageId => {From, erlang:system_time(millisecond) + Timeout}},
+            PendingRequests = maps:put(MessageId, {From, erlang:system_time(millisecond) + Timeout}, State#state.pending_requests),
             NewState = State#state{
                 message_id = MessageId + 1,
                 pending_requests = PendingRequests
@@ -117,20 +120,20 @@ handle_cast(send_heartbeat, State) ->
 handle_cast(_Msg, State) ->
     {noreply, State}.
 
-handle_info({tcp, Socket, Data}, State) ->
+handle_info({tcp, _Socket, Data}, State) ->
     case rpc_protocol:decode_message(Data) of
         {ok, Message} ->
             handle_server_message(Message, State);
         {error, Reason} ->
-            io:format("Failed to decode server message: ~p~n", [Reason])
-    end,
-    {noreply, State};
+            io:format("Failed to decode server message: ~p~n", [Reason]),
+            {noreply, State}
+    end;
 
-handle_info({tcp_closed, Socket}, State) ->
+handle_info({tcp_closed, _Socket}, State) ->
     io:format("Connection to server closed~n"),
     {noreply, State#state{socket = undefined}};
 
-handle_info({tcp_error, Socket, Reason}, State) ->
+handle_info({tcp_error, _Socket, Reason}, State) ->
     io:format("TCP error: ~p~n", [Reason]),
     {noreply, State#state{socket = undefined}};
 
@@ -198,9 +201,11 @@ handle_server_message(Message, State) ->
         2 -> % RESPONSE
             handle_response(Message, State);
         4 -> % HEARTBEAT
-            handle_heartbeat_response(Message);
+            handle_heartbeat_response(Message),
+            {noreply, State};
         _ ->
-            io:format("Received unexpected message type: ~p~n", [Message])
+            io:format("Received unexpected message type: ~p~n", [Message]),
+            {noreply, State}
     end.
 
 %% 处理响应消息
@@ -217,9 +222,10 @@ handle_response(#rpc_message{id = Id, result = Result, error = Error}, State) ->
             
             % 从待处理请求中移除
             PendingRequests = maps:remove(Id, State#state.pending_requests),
-            State#state{pending_requests = PendingRequests};
+            {noreply, State#state{pending_requests = PendingRequests}};
         error ->
-            io:format("Received response for unknown request ID: ~p~n", [Id])
+            io:format("Received response for unknown request ID: ~p~n", [Id]),
+            {noreply, State}
     end.
 
 %% 处理心跳响应
