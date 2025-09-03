@@ -47,45 +47,45 @@ test_id_generator() ->
     case id_generator:generate_role_id() of
         {ok, RoleId} ->
             io:format("生成角色ID成功: ~p~n", [RoleId]);
-        {error, Reason} ->
-            io:format("生成角色ID失败: ~p~n", [Reason])
+        {error, Reason1} ->
+            io:format("生成角色ID失败: ~p~n", [Reason1])
     end,
     
     case id_generator:generate_session_id() of
         {ok, SessionId} ->
             io:format("生成会话ID成功: ~p~n", [SessionId]);
-        {error, Reason} ->
-            io:format("生成会话ID失败: ~p~n", [Reason])
+        {error, Reason2} ->
+            io:format("生成会话ID失败: ~p~n", [Reason2])
     end,
     
     case id_generator:generate_item_id() of
         {ok, ItemId} ->
             io:format("生成物品ID成功: ~p~n", [ItemId]);
-        {error, Reason} ->
-            io:format("生成物品ID失败: ~p~n", [Reason])
+        {error, Reason3} ->
+            io:format("生成物品ID失败: ~p~n", [Reason3])
     end,
     
     case id_generator:generate_order_id() of
         {ok, OrderId} ->
             io:format("生成订单ID成功: ~p~n", [OrderId]);
-        {error, Reason} ->
-            io:format("生成订单ID失败: ~p~n", [Reason])
+        {error, Reason4} ->
+            io:format("生成订单ID失败: ~p~n", [Reason4])
     end,
     
     %% 测试生成公会ID
     case id_generator:generate_guild_id() of
         {ok, GuildId} ->
             io:format("生成公会ID成功: ~p~n", [GuildId]);
-        {error, Reason} ->
-            io:format("生成公会ID失败: ~p~n", [Reason])
+        {error, Reason5} ->
+            io:format("生成公会ID失败: ~p~n", [Reason5])
     end,
     
     %% 测试批量生成
     case id_generator:generate_id(role_id) of
         {ok, RoleId2} ->
             io:format("使用通用接口生成角色ID成功: ~p~n", [RoleId2]);
-        {error, Reason} ->
-            io:format("使用通用接口生成角色ID失败: ~p~n", [Reason])
+        {error, Reason6} ->
+            io:format("使用通用接口生成角色ID失败: ~p~n", [Reason6])
     end,
     
     io:format("ID生成器测试完成~n").
@@ -98,16 +98,16 @@ test_mdb() ->
     case mdb:query("SELECT * FROM players LIMIT 5") of
         {ok, Result} ->
             io:format("查询结果: ~p~n", [Result]);
-        {error, Reason} ->
-            io:format("查询失败: ~p~n", [Reason])
+        {error, Reason7} ->
+            io:format("查询失败: ~p~n", [Reason7])
     end,
     
     %% 测试获取玩家
     case mdb:get_player(1000) of
         {ok, Player} ->
             io:format("获取玩家1000成功: ~p~n", [Player]);
-        {error, Reason} ->
-            io:format("获取玩家1000失败: ~p~n", [Reason])
+        {error, Reason8} ->
+            io:format("获取玩家1000失败: ~p~n", [Reason8])
     end,
     
     io:format("MDB测试完成~n").
@@ -128,16 +128,16 @@ test_items_and_guilds() ->
     case mdb:add_item(1000, ItemData) of
         {ok, #{item_id := ItemId}} ->
             io:format("添加物品成功: ~p~n", [ItemId]);
-        {error, Reason} ->
-            io:format("添加物品失败: ~p~n", [Reason])
+        {error, Reason9} ->
+            io:format("添加物品失败: ~p~n", [Reason9])
     end,
     
     %% 测试获取玩家物品
     case mdb:get_player_items(1000) of
         {ok, Items} ->
             io:format("获取玩家物品成功，数量: ~p~n", [length(Items)]);
-        {error, Reason} ->
-            io:format("获取玩家物品失败: ~p~n", [Reason])
+        {error, Reason10} ->
+            io:format("获取玩家物品失败: ~p~n", [Reason10])
     end,
     
     %% 测试创建公会
@@ -155,16 +155,16 @@ test_items_and_guilds() ->
     case mdb:create_guild(GuildData) of
         {ok, #{guild_id := GuildId}} ->
             io:format("创建公会成功: ~p~n", [GuildId]);
-        {error, Reason} ->
-            io:format("创建公会失败: ~p~n", [Reason])
+        {error, Reason11} ->
+            io:format("创建公会失败: ~p~n", [Reason11])
     end,
     
     %% 测试获取公会信息
     case mdb:get_guild(40001) of
         {ok, Guild} ->
             io:format("获取公会信息成功: ~p~n", [Guild]);
-        {error, Reason} ->
-            io:format("获取公会信息失败: ~p~n", [Reason])
+        {error, Reason12} ->
+            io:format("获取公会信息失败: ~p~n", [Reason12])
     end,
     
     io:format("物品和公会测试完成~n").
@@ -177,16 +177,16 @@ test_auth() ->
     case player_auth:login("admin", "123456") of
         {ok, #{session_id := SessionId, role_id := RoleId}} ->
             io:format("登录成功: SessionId=~s, RoleId=~p~n", [SessionId, RoleId]);
-        {error, Reason} ->
-            io:format("登录失败: ~p~n", [Reason])
+        {error, Reason13} ->
+            io:format("登录失败: ~p~n", [Reason13])
     end,
     
     %% 测试注册
     case player_auth:register("newuser", "newpass", "新用户") of
         {ok, #{role_id := NewRoleId, username := Username}} ->
             io:format("注册成功: ~s (RoleId: ~p)~n", [Username, NewRoleId]);
-        {error, Reason} ->
-            io:format("注册失败: ~p~n", [Reason])
+        {error, Reason14} ->
+            io:format("注册失败: ~p~n", [Reason14])
     end,
     
     io:format("认证测试完成~n").
@@ -199,16 +199,16 @@ test_player() ->
     case game_player:start_link(1000) of
         {ok, Pid} ->
             io:format("玩家进程启动成功: ~p~n", [Pid]);
-        {error, Reason} ->
-            io:format("玩家进程启动失败: ~p~n", [Reason])
+        {error, Reason15} ->
+            io:format("玩家进程启动失败: ~p~n", [Reason15])
     end,
     
     %% 测试获取状态
     case game_player:get_state(1000) of
         {ok, State} ->
             io:format("玩家状态: ~p~n", [State]);
-        {error, Reason} ->
-            io:format("获取状态失败: ~p~n", [Reason])
+        {error, Reason16} ->
+            io:format("获取状态失败: ~p~n", [Reason16])
     end,
     
     %% 测试添加经验
@@ -227,16 +227,16 @@ test_player() ->
     case game_player:get_state(1000) of
         {ok, NewState} ->
             io:format("更新后的状态: ~p~n", [NewState]);
-        {error, Reason} ->
-            io:format("获取更新状态失败: ~p~n", [Reason])
+        {error, Reason17} ->
+            io:format("获取更新状态失败: ~p~n", [Reason17])
     end,
     
     %% 手动保存状态
     case game_player:save_state(1000) of
         {ok, saved} ->
             io:format("手动保存成功~n");
-        {error, Reason} ->
-            io:format("手动保存失败: ~p~n", [Reason])
+        {error, Reason18} ->
+            io:format("手动保存失败: ~p~n", [Reason18])
     end,
     
     io:format("玩家进程测试完成~n").
