@@ -1,0 +1,16 @@
+{application, rpc,
+ [{description, "RPC message transport system for game servers"},
+  {vsn, "0.1.0"},
+  {modules, [rpc_app, rpc_sup, rpc_server, rpc_client, rpc_protocol, rpc_registry, rpc_monitor]},
+  {registered, [rpc_server, rpc_registry, rpc_monitor]},
+  {applications, [kernel, stdlib, crypto]},
+  {mod, {rpc_app, []}},
+  {env, [
+    {default_port, 8888},
+    {heartbeat_interval, 30000},
+    {connection_timeout, 10000},
+    {max_connections, 1000},
+    {enable_ssl, false},
+    {ssl_port, 8889}
+  ]}
+ ]}. 

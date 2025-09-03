@@ -1,0 +1,14 @@
+{application, https_api,
+ [{description, "HTTPS API server for backend management and SDK login"},
+  {vsn, "0.1.0"},
+  {modules, [https_api_app, https_api_sup, https_server, https_handler, sdk_auth, admin_api, https_init]},
+  {registered, []},
+  {applications, [kernel, stdlib, ssl, crypto]},
+  {mod, {https_api_app, []}},
+  {env, [
+    {port, 8443},
+    {cert_file, "priv/cert.pem"},
+    {key_file, "priv/key.pem"},
+    {cacert_file, "priv/cacert.pem"}
+  ]}
+ ]}. 

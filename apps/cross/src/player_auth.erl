@@ -75,7 +75,8 @@ do_login(Username, Password, State) ->
                         login_time => erlang:system_time(seconds),
                         expire_time => erlang:system_time(seconds) + ?SESSION_TIMEOUT
                     },
-                    NewSessions = maps:put(SessionId, SessionData, maps:get(sessions, State)),
+                    %% 更新会话状态
+                    NewState = State#{sessions => maps:put(SessionId, SessionData, maps:get(sessions, State))},
                     
                     %% 更新最后登录时间
                     mdb:update_player(#{role_id => RoleId, last_login_time => erlang:system_time(seconds)}),
@@ -91,7 +92,7 @@ do_login(Username, Password, State) ->
             {error, Reason}
     end.
 
-do_register(Username, Password, Nickname, State) ->
+do_register(Username, Password, Nickname, _State) ->
     %% 检查用户名是否已存在
     case check_username_exists(Username) of
         {ok, exists} ->
@@ -129,11 +130,12 @@ do_authenticate(SessionId, State) ->
                 CurrentTime < ExpireTime ->
                     %% 会话有效，延长过期时间
                     NewSessionData = SessionData#{expire_time => CurrentTime + ?SESSION_TIMEOUT},
-                    NewSessions = maps:put(SessionId, NewSessionData, Sessions),
+                    %% 更新会话状态（暂时不保存，因为函数返回的是原数据）
+                    _NewSessions = maps:put(SessionId, NewSessionData, Sessions),
                     {ok, SessionData};
                 true ->
                     %% 会话已过期，删除
-                    NewSessions = maps:remove(SessionId, Sessions),
+                    _NewSessions = maps:remove(SessionId, Sessions),
                     {error, session_expired}
             end;
         error ->
@@ -142,8 +144,7 @@ do_authenticate(SessionId, State) ->
 
 do_logout(SessionId, State) ->
     Sessions = maps:get(sessions, State),
-    NewSessions = maps:remove(SessionId, Sessions),
-    State#{sessions => NewSessions}.
+    State#{sessions => maps:remove(SessionId, Sessions)}.
 
 %% 辅助函数
 check_credentials(Username, Password) ->
@@ -173,8 +174,4 @@ hash_password(Password) ->
     %% 现在用简单实现
     erlang:md5(Password).
 
-generate_session_id() ->
-    %% 生成唯一的会话ID
-    Timestamp = erlang:system_time(millisecond),
-    Random = rand:uniform(1000000),
-    erlang:integer_to_list(Timestamp) ++ "_" ++ erlang:integer_to_list(Random). 
+ 
