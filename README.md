@@ -37,7 +37,47 @@
    - 使用 telnet: telnet 127.0.0.1 5000
    - 发送 "hello" 或 "login alice 123" 等，会收到示例应答。
 
-下一步建议
+## 新增功能
+
+### 日志系统
+- 使用Debugger Error Log格式，包含完整的调试信息
+- 支持堆栈跟踪和调用栈信息
+- 按类型和日期自动分文件存储
+- 同时输出到控制台和文件
+
+### ID生成器系统
+- 集中管理所有类型的唯一ID生成
+- 支持角色、会话、物品、公会等多种ID类型
+- 自动从数据库加载现有最大ID，避免冲突
+
+### 数据库系统
+- 支持玩家、物品、公会等数据管理
+- 自动表结构初始化
+- 集成ID生成器
+
+## 快速开始
+
+1. 编译项目：
+```bash
+rebar3 compile
+```
+
+2. 启动Erlang shell：
+```bash
+rebar3 shell
+```
+
+3. 测试系统功能：
+```erlang
+test_system:demo().
+```
+
+4. 单独测试日志系统：
+```erlang
+test_logger:test().
+```
+
+## 下一步建议
 - 把 login 的鉴权替换为真实 DB（Postgres / Mnesia）。
 - cross 实现会话迁移与心跳、断线重连处理。
 - game 实现玩家进程（gen_server），利用 pg 或 gproc 做分布式发现。

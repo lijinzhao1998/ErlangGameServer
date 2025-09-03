@@ -1,0 +1,20 @@
+=ERROR REPORT==== 2024-01-01 12:34:57 ===
+Process: <0.123.0> (logger)
+Module: test_system
+Level: warning
+Message: 这是一条警告日志
+Location: apps/cross/src/test_system.erl:46
+
+=ERROR REPORT==== 2024-01-01 12:35:02 ===
+Process: <0.123.0> (logger)
+Module: test_system
+Level: warning
+Message: 玩家 1001 尝试访问未授权区域
+Location: apps/cross/src/test_logger.erl:26
+
+=ERROR REPORT==== 2024-01-01 12:35:03 ===
+Process: <0.123.0> (logger)
+Module: test_system
+Level: warning
+Message: 警告消息: warning_data
+Location: apps/cross/src/test_system.erl:60 

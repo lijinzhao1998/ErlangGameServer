@@ -29,7 +29,7 @@ logout(SessionId) ->
 %% gen_server callbacks
 init([]) ->
     %% 初始化会话存储
-    {ok, #{sessions => #{}, next_role_id => 1001}}.
+    {ok, #{sessions => #{}}}.
 
 handle_call({login, Username, Password}, _From, State) ->
     Result = do_login(Username, Password, State),
@@ -66,21 +66,26 @@ do_login(Username, Password, State) ->
     %% 现在用模拟实现
     case check_credentials(Username, Password) of
         {ok, RoleId} ->
-            %% 创建会话
-            SessionId = generate_session_id(),
-            SessionData = #{
-                role_id => RoleId,
-                username => Username,
-                login_time => erlang:system_time(seconds),
-                expire_time => erlang:system_time(seconds) + ?SESSION_TIMEOUT
-            },
-            NewSessions = maps:put(SessionId, SessionData, maps:get(sessions, State)),
-            
-            %% 更新最后登录时间
-            mdb:update_player(#{role_id => RoleId, last_login_time => erlang:system_time(seconds)}),
-            
-            logger:log_info("玩家登录成功: ~s (RoleId: ~p)", [Username, RoleId]),
-            {ok, #{session_id => SessionId, role_id => RoleId}};
+            %% 使用ID生成器创建会话ID
+            case id_generator:generate_session_id() of
+                {ok, SessionId} ->
+                    SessionData = #{
+                        role_id => RoleId,
+                        username => Username,
+                        login_time => erlang:system_time(seconds),
+                        expire_time => erlang:system_time(seconds) + ?SESSION_TIMEOUT
+                    },
+                    NewSessions = maps:put(SessionId, SessionData, maps:get(sessions, State)),
+                    
+                    %% 更新最后登录时间
+                    mdb:update_player(#{role_id => RoleId, last_login_time => erlang:system_time(seconds)}),
+                    
+                    logger:log_info("玩家登录成功: ~s (RoleId: ~p, SessionId: ~p)", [Username, RoleId, SessionId]),
+                    {ok, #{session_id => SessionId, role_id => RoleId}};
+                {error, Reason} ->
+                    logger:log_error("生成会话ID失败: ~p", [Reason]),
+                    {error, Reason}
+            end;
         {error, Reason} ->
             logger:log_warning("玩家登录失败: ~s, 原因: ~p", [Username, Reason]),
             {error, Reason}
@@ -92,20 +97,17 @@ do_register(Username, Password, Nickname, State) ->
         {ok, exists} ->
             {error, username_already_exists};
         {ok, not_exists} ->
-            %% 创建新玩家
-            RoleId = maps:get(next_role_id, State),
+            %% 创建新玩家（role_id将由MDB模块通过ID生成器生成）
             PasswordHash = hash_password(Password),
             
             PlayerData = #{
-                role_id => RoleId,
                 username => Username,
                 password_hash => PasswordHash,
                 nickname => Nickname
             },
             
             case mdb:create_player(PlayerData) of
-                {ok, _} ->
-                    NewState = State#{next_role_id => RoleId + 1},
+                {ok, #{role_id := RoleId, username := Username}} ->
                     logger:log_info("玩家注册成功: ~s (RoleId: ~p)", [Username, RoleId]),
                     {ok, #{role_id => RoleId, username => Username}};
                 {error, Reason} ->

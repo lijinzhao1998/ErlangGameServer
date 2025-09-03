@@ -1,0 +1,20 @@
+=ERROR REPORT==== 2024-01-01 12:34:56 ===
+Process: <0.123.0> (logger)
+Module: test_system
+Level: info
+Message: 这是一条信息日志
+Location: apps/cross/src/test_system.erl:45
+
+=ERROR REPORT==== 2024-01-01 12:34:57 ===
+Process: <0.123.0> (logger)
+Module: test_system
+Level: info
+Message: 带模块名的日志
+Location: apps/cross/src/test_system.erl:50
+
+=ERROR REPORT==== 2024-01-01 12:35:01 ===
+Process: <0.123.0> (logger)
+Module: test_system
+Level: info
+Message: 用户 testuser 登录成功，角色ID: 1001
+Location: apps/cross/src/test_logger.erl:25 

@@ -7,9 +7,12 @@
 ### 1. 日志系统 (Logger)
 
 **功能特点：**
+- 使用Debugger Error Log格式，包含完整的调试信息
 - 按日志类型分类存储（info, warning, error, debug）
 - 按日期自动分文件存储
 - 支持带参数的日志记录
+- 支持堆栈跟踪和调用栈信息
+- 同时输出到控制台和文件
 - 异步写入，不影响性能
 
 **使用方法：**
@@ -24,7 +27,26 @@ logger:log_debug("这是一条调试日志"),
 logger:log(info, ?MODULE, "带模块名的日志"),
 
 % 带参数的日志
-logger:log(error, ?MODULE, "带参数的日志: ~p", [test_data]).
+logger:log(error, ?MODULE, "带参数的日志: ~p", [test_data]),
+
+% 带堆栈跟踪的日志
+logger:log_with_stack(error, ?MODULE, "异常信息", StackTrace),
+
+% 带参数和堆栈的日志
+logger:log_with_stack(warning, ?MODULE, "警告: ~p", [Data], StackTrace).
+```
+
+**日志格式示例：**
+```
+=ERROR REPORT==== 2024-01-01 12:34:56 ===
+Process: <0.123.0> (logger)
+Module: test_system
+Level: error
+Message: 捕获到异常: test_exception
+Location: apps/cross/src/test_system.erl:45
+Call Stack:
+  test_system:test_logger/0 at apps/cross/src/test_system.erl:45
+  test_system:test_all/0 at apps/cross/src/test_system.erl:15
 ```
 
 **日志文件结构：**
@@ -38,7 +60,43 @@ logs/
 └── debug/
 ```
 
-### 2. MDB数据库系统
+### 2. ID生成器系统
+
+**功能特点：**
+- 集中管理所有类型的唯一ID生成
+- 支持多种ID类型（角色、会话、物品、公会等）
+- 自动从数据库加载现有最大ID，避免冲突
+- 按类型分配ID范围，确保唯一性
+- 支持批量生成和ID重置
+
+**使用方法：**
+```erlang
+% 生成各种类型的ID
+{ok, RoleId} = id_generator:generate_role_id(),
+{ok, SessionId} = id_generator:generate_session_id(),
+{ok, ItemId} = id_generator:generate_item_id(),
+{ok, GuildId} = id_generator:generate_guild_id(),
+
+% 使用通用接口生成ID
+{ok, Id} = id_generator:generate_id(role_id),
+
+% 获取ID状态
+{ok, Status} = id_generator:get_id_status().
+```
+
+**ID范围分配：**
+- 角色ID：1000+ (玩家角色)
+- 会话ID：10000+ (用户会话)
+- 物品ID：20000+ (游戏物品)
+- 订单ID：30000+ (交易订单)
+- 公会ID：40000+ (游戏公会)
+- 邮件ID：50000+ (系统邮件)
+- 聊天ID：60000+ (聊天记录)
+- 交易ID：70000+ (交易记录)
+- 战斗ID：80000+ (战斗记录)
+- 任务ID：90000+ (游戏任务)
+
+### 3. MDB数据库系统
 
 **功能特点：**
 - 支持SQL查询和执行
@@ -152,10 +210,11 @@ CREATE TABLE player_sessions (
 系统启动时会按以下顺序启动各个模块：
 
 1. **Logger** - 日志系统
-2. **MDB** - 数据库系统
-3. **PlayerAuth** - 玩家认证
-4. **DynamicSupervisor** - 连接管理
-5. **CrossListener** - 网络监听
+2. **IdGenerator** - ID生成器
+3. **MDB** - 数据库系统
+4. **PlayerAuth** - 玩家认证
+5. **DynamicSupervisor** - 连接管理
+6. **CrossListener** - 网络监听
 
 ## 测试系统
 
@@ -167,7 +226,9 @@ test_system:test_all().
 
 % 单独测试各个模块
 test_system:test_logger().
+test_system:test_id_generator().
 test_system:test_mdb().
+test_system:test_items_and_guilds().
 test_system:test_auth().
 test_system:test_player().
 

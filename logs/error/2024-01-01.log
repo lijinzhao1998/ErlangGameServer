@@ -1,0 +1,32 @@
+=ERROR REPORT==== 2024-01-01 12:34:58 ===
+Process: <0.123.0> (logger)
+Module: test_system
+Level: error
+Message: 这是一条错误日志
+Location: apps/cross/src/test_system.erl:47
+
+=ERROR REPORT==== 2024-01-01 12:34:59 ===
+Process: <0.123.0> (logger)
+Module: test_system
+Level: error
+Message: 带参数的日志: test_data
+Location: apps/cross/src/test_system.erl:51
+
+=ERROR REPORT==== 2024-01-01 12:35:00 ===
+Process: <0.123.0> (logger)
+Module: test_system
+Level: error
+Message: 捕获到异常: test_exception
+Location: apps/cross/src/test_system.erl:55
+Call Stack:
+  test_system:test_logger/0 at apps/cross/src/test_system.erl:55
+  test_system:test_all/0 at apps/cross/src/test_system.erl:15
+
+=ERROR REPORT==== 2024-01-01 12:35:04 ===
+Process: <0.123.0> (logger)
+Module: test_system
+Level: error
+Message: 列表索引越界: badarg
+Location: apps/cross/src/test_logger.erl:35
+Call Stack:
+  test_logger:test/0 at apps/cross/src/test_logger.erl:35 

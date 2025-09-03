@@ -1,12 +1,14 @@
 -module(test_system).
--export([test_all/0, test_logger/0, test_mdb/0, test_auth/0, test_player/0]).
+-export([test_all/0, test_logger/0, test_id_generator/0, test_mdb/0, test_items_and_guilds/0, test_auth/0, test_player/0]).
 
 %% 测试所有功能
 test_all() ->
     io:format("=== 开始测试所有系统功能 ===~n"),
     
     test_logger(),
+    test_id_generator(),
     test_mdb(),
+    test_items_and_guilds(),
     test_auth(),
     test_player(),
     
@@ -24,7 +26,69 @@ test_logger() ->
     logger:log(info, ?MODULE, "带模块名的日志"),
     logger:log(error, ?MODULE, "带参数的日志: ~p", [test_data]),
     
-    io:format("日志测试完成，请检查logs目录~n").
+    %% 测试带堆栈跟踪的日志
+    try
+        throw(test_exception)
+    catch
+        _:Reason:StackTrace ->
+            logger:log_with_stack(error, ?MODULE, "捕获到异常: ~p", [Reason], StackTrace)
+    end,
+    
+    %% 测试带参数的堆栈日志
+    logger:log_with_stack(warning, ?MODULE, "警告消息: ~p", [warning_data], []),
+    
+    io:format("日志测试完成，请检查logs目录和控制台输出~n").
+
+%% 测试ID生成器
+test_id_generator() ->
+    io:format("~n--- 测试ID生成器 ---~n"),
+    
+    %% 测试生成各种类型的ID
+    case id_generator:generate_role_id() of
+        {ok, RoleId} ->
+            io:format("生成角色ID成功: ~p~n", [RoleId]);
+        {error, Reason} ->
+            io:format("生成角色ID失败: ~p~n", [Reason])
+    end,
+    
+    case id_generator:generate_session_id() of
+        {ok, SessionId} ->
+            io:format("生成会话ID成功: ~p~n", [SessionId]);
+        {error, Reason} ->
+            io:format("生成会话ID失败: ~p~n", [Reason])
+    end,
+    
+    case id_generator:generate_item_id() of
+        {ok, ItemId} ->
+            io:format("生成物品ID成功: ~p~n", [ItemId]);
+        {error, Reason} ->
+            io:format("生成物品ID失败: ~p~n", [Reason])
+    end,
+    
+    case id_generator:generate_order_id() of
+        {ok, OrderId} ->
+            io:format("生成订单ID成功: ~p~n", [OrderId]);
+        {error, Reason} ->
+            io:format("生成订单ID失败: ~p~n", [Reason])
+    end,
+    
+    %% 测试生成公会ID
+    case id_generator:generate_guild_id() of
+        {ok, GuildId} ->
+            io:format("生成公会ID成功: ~p~n", [GuildId]);
+        {error, Reason} ->
+            io:format("生成公会ID失败: ~p~n", [Reason])
+    end,
+    
+    %% 测试批量生成
+    case id_generator:generate_id(role_id) of
+        {ok, RoleId2} ->
+            io:format("使用通用接口生成角色ID成功: ~p~n", [RoleId2]);
+        {error, Reason} ->
+            io:format("使用通用接口生成角色ID失败: ~p~n", [Reason])
+    end,
+    
+    io:format("ID生成器测试完成~n").
 
 %% 测试MDB数据库
 test_mdb() ->
@@ -47,6 +111,63 @@ test_mdb() ->
     end,
     
     io:format("MDB测试完成~n").
+
+%% 测试物品和公会
+test_items_and_guilds() ->
+    io:format("~n--- 测试物品和公会系统 ---~n"),
+    
+    %% 测试添加物品
+    ItemData = #{
+        item_type => "weapon",
+        item_name => "测试武器",
+        quantity => 1,
+        quality => 3,
+        level => 5
+    },
+    
+    case mdb:add_item(1000, ItemData) of
+        {ok, #{item_id := ItemId}} ->
+            io:format("添加物品成功: ~p~n", [ItemId]);
+        {error, Reason} ->
+            io:format("添加物品失败: ~p~n", [Reason])
+    end,
+    
+    %% 测试获取玩家物品
+    case mdb:get_player_items(1000) of
+        {ok, Items} ->
+            io:format("获取玩家物品成功，数量: ~p~n", [length(Items)]);
+        {error, Reason} ->
+            io:format("获取玩家物品失败: ~p~n", [Reason])
+    end,
+    
+    %% 测试创建公会
+    GuildData = #{
+        guild_name => "测试公会",
+        leader_id => 1000,
+        member_count => 1,
+        max_members => 50,
+        level => 1,
+        exp => 0,
+        funds => 1000,
+        description => "这是一个测试公会"
+    },
+    
+    case mdb:create_guild(GuildData) of
+        {ok, #{guild_id := GuildId}} ->
+            io:format("创建公会成功: ~p~n", [GuildId]);
+        {error, Reason} ->
+            io:format("创建公会失败: ~p~n", [Reason])
+    end,
+    
+    %% 测试获取公会信息
+    case mdb:get_guild(40001) of
+        {ok, Guild} ->
+            io:format("获取公会信息成功: ~p~n", [Guild]);
+        {error, Reason} ->
+            io:format("获取公会信息失败: ~p~n", [Reason])
+    end,
+    
+    io:format("物品和公会测试完成~n").
 
 %% 测试玩家认证
 test_auth() ->
@@ -126,13 +247,19 @@ demo() ->
     io:format("1. 测试日志系统...~n"),
     test_logger(),
     
-    io:format("~n2. 测试数据库...~n"),
+    io:format("~n2. 测试ID生成器...~n"),
+    test_id_generator(),
+    
+    io:format("~n3. 测试数据库...~n"),
     test_mdb(),
     
-    io:format("~n3. 测试认证...~n"),
+    io:format("~n4. 测试物品和公会...~n"),
+    test_items_and_guilds(),
+    
+    io:format("~n5. 测试认证...~n"),
     test_auth(),
     
-    io:format("~n4. 测试玩家进程...~n"),
+    io:format("~n6. 测试玩家进程...~n"),
     test_player(),
     
     io:format("~n=== 演示完成 ===~n"). 
