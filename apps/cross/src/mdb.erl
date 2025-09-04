@@ -510,4 +510,105 @@ do_delete_guild(GuildId) ->
         {error, Reason} -> 
             logger:log_error("删除公会失败: ~p", [Reason]),
             {error, Reason}
-    end. 
+    end.
+
+%% 存库相关函数
+do_force_save(DirtyData) ->
+    %% 强制存库：立即保存所有脏数据
+    logger:log_info("开始强制存库，脏数据表数量: ~p", [maps:size(DirtyData)]),
+    case save_dirty_data(DirtyData) of
+        ok ->
+            logger:log_info("强制存库完成"),
+            ok;
+        {error, Reason} ->
+            logger:log_error("强制存库失败: ~p", [Reason]),
+            {error, Reason}
+    end.
+
+do_auto_save(DirtyData) ->
+    %% 自动存库：定时保存脏数据
+    logger:log_debug("开始自动存库，脏数据表数量: ~p", [maps:size(DirtyData)]),
+    case save_dirty_data(DirtyData) of
+        ok ->
+            logger:log_debug("自动存库完成"),
+            ok;
+        {error, Reason} ->
+            logger:log_error("自动存库失败: ~p", [Reason]),
+            {error, Reason}
+    end.
+
+%% 保存脏数据的通用函数
+save_dirty_data(DirtyData) ->
+    %% 遍历所有脏数据表并保存
+    Tables = maps:keys(DirtyData),
+    save_dirty_tables(Tables, DirtyData).
+
+save_dirty_tables([], _DirtyData) ->
+    ok;
+save_dirty_tables([Table | Rest], DirtyData) ->
+    TableData = maps:get(Table, DirtyData, #{}),
+    case maps:size(TableData) of
+        0 ->
+            save_dirty_tables(Rest, DirtyData);
+        _Size ->
+            case save_table_data(Table, TableData) of
+                ok ->
+                    save_dirty_tables(Rest, DirtyData);
+                {error, Reason} ->
+                    logger:log_error("保存表 ~s 数据失败: ~p", [Table, Reason]),
+                    {error, Reason}
+            end
+    end.
+
+save_table_data(Table, TableData) ->
+    %% 根据表名选择不同的保存策略
+    case Table of
+        players ->
+            save_players_data(TableData);
+        player_items ->
+            save_items_data(TableData);
+        guilds ->
+            save_guilds_data(TableData);
+        _Other ->
+            logger:log_warning("未知的脏数据表: ~s", [Table]),
+            ok
+    end.
+
+save_players_data(TableData) ->
+    %% 保存玩家数据
+    PlayerIds = maps:keys(TableData),
+    save_players_by_ids(PlayerIds).
+
+save_players_by_ids([]) ->
+    ok;
+save_players_by_ids([PlayerId | Rest]) ->
+    %% 这里应该从内存缓存中获取玩家数据并保存到数据库
+    %% 由于当前是模拟实现，这里只记录日志
+    logger:log_debug("保存玩家数据: ~p", [PlayerId]),
+    save_players_by_ids(Rest).
+
+save_items_data(TableData) ->
+    %% 保存物品数据
+    ItemIds = maps:keys(TableData),
+    save_items_by_ids(ItemIds).
+
+save_items_by_ids([]) ->
+    ok;
+save_items_by_ids([ItemId | Rest]) ->
+    %% 这里应该从内存缓存中获取物品数据并保存到数据库
+    %% 由于当前是模拟实现，这里只记录日志
+    logger:log_debug("保存物品数据: ~p", [ItemId]),
+    save_items_by_ids(Rest).
+
+save_guilds_data(TableData) ->
+    %% 保存公会数据
+    GuildIds = maps:keys(TableData),
+    save_guilds_by_ids(GuildIds).
+
+save_guilds_by_ids([]) ->
+    ok;
+save_guilds_by_ids([GuildId | Rest]) ->
+    %% 这里应该从内存缓存中获取公会数据并保存到数据库
+    %% 由于当前是模拟实现，这里只记录日志
+    logger:log_debug("保存公会数据: ~p", [GuildId]),
+    save_guilds_by_ids(Rest). 
