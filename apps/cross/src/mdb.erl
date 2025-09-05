@@ -183,21 +183,24 @@ handle_info(auto_save, State) ->
     case maps:size(DirtyData) of
         0 ->
             logger:log_debug("定时存库检查：无脏数据"),
-            ok;
+            %% 重新启动定时器
+            erlang:send_after(?SAVE_INTERVAL, self(), auto_save),
+            {noreply, State};
         Size ->
             logger:log_info("定时存库：处理 ~p 条脏数据", [Size]),
             case do_auto_save(DirtyData) of
                 ok ->
                     logger:log_info("定时存库成功"),
+                    %% 重新启动定时器
+                    erlang:send_after(?SAVE_INTERVAL, self(), auto_save),
                     {noreply, State#{dirty_data => #{}}};
                 {error, Reason} ->
                     logger:log_error("定时存库失败: ~p", [Reason]),
+                    %% 重新启动定时器
+                    erlang:send_after(?SAVE_INTERVAL, self(), auto_save),
                     {noreply, State}
             end
-    end,
-    %% 重新启动定时器
-    erlang:send_after(?SAVE_INTERVAL, self(), auto_save),
-    {noreply, State};
+    end;
 handle_info(_Info, State) ->
     {noreply, State}.
 

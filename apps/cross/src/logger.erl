@@ -181,7 +181,7 @@ format_debugger_log(Type, Module, Message, ProcessInfo, CallStack, StackTrace) -
 %% 获取调用位置
 get_call_location([]) ->
     {unknown, 0};
-get_call_location([{Module, Function, Arity, Location} | _]) ->
+get_call_location([{Module, _Function, _Arity, Location} | _]) ->
     case Location of
         [{file, File}, {line, Line}] -> {File, Line};
         _ -> {atom_to_list(Module), 0}

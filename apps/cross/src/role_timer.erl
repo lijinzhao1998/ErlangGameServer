@@ -2,7 +2,7 @@
 -behaviour(gen_server).
 
 -export([start_link/0, stop/0]).
--export([start_timer/4, start_timer/5, stop_timer/2, get_timers/1]).
+-export([start_timer/5, stop_timer/2, get_timers/1]).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
 
 -define(MIN_INTERVAL, 1000). % 最小间隔1秒
@@ -86,7 +86,7 @@ handle_call({stop_timer, RoleId, TimerId}, _From, State) ->
     RoleTimers = maps:get(RoleId, Timers, #{}),
     
     case maps:find(TimerId, RoleTimers) of
-        {ok, TimerInfo} ->
+        {ok, _TimerInfo} ->
             NewRoleTimers = maps:remove(TimerId, RoleTimers),
             NewTimers = case maps:size(NewRoleTimers) of
                 0 -> maps:remove(RoleId, Timers);
@@ -178,7 +178,7 @@ process_role_timers(RoleId, RoleTimers, Now) ->
         end
     end, {#{}, ?MAX_INTERVAL}, RoleTimers).
 
-process_single_timer(RoleId, TimerInfo, Now) ->
+process_single_timer(_RoleId, TimerInfo, Now) ->
     case TimerInfo#timer_info.next_execute =< Now of
         false ->
             {ok, TimerInfo};

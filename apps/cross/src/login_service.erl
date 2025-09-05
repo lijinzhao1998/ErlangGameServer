@@ -151,7 +151,7 @@ loop_recv(Socket, PgConn) ->
             ?LOG_ERROR("recv error: ~p", [Reason])
     end.
 
-handle_envelope(Socket, PgConn, MsgId, MsgType, EnvelopeMap) ->
+handle_envelope(Socket, PgConn, MsgId, _MsgType, EnvelopeMap) ->
     Route = maps:get(route, EnvelopeMap, <<"">>),
     Body = maps:get(body, EnvelopeMap, <<>>),
     case Route of
