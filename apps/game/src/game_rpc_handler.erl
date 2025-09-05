@@ -1,15 +1,7 @@
 %% 游戏服务器RPC处理器
 -module(game_rpc_handler).
 
--export([
-    start_link/0,
-    init/1,
-    handle_call/3,
-    handle_cast/2,
-    handle_info/2,
-    terminate/2,
-    code_change/3
-]).
+-export([start_link/0, init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
 
 -behaviour(gen_server).
 
@@ -48,7 +40,7 @@ handle_call({update_player, PlayerId, Updates}, _From, State) ->
     case maps:find(PlayerId, State#state.players) of
         {ok, PlayerData} ->
             UpdatedPlayer = maps:merge(PlayerData, Updates),
-            NewPlayers = State#state.players#{PlayerId => UpdatedPlayer},
+            NewPlayers = maps:put(PlayerId, UpdatedPlayer, State#state.players),
             {reply, {ok, UpdatedPlayer}, State#state{players = NewPlayers}};
         error ->
             {reply, {error, player_not_found}, State}
@@ -91,7 +83,7 @@ handle_cast({player_logout, PlayerId}, State) ->
     case maps:find(PlayerId, State#state.players) of
         {ok, PlayerData} ->
             UpdatedPlayer = PlayerData#{last_logout => erlang:system_time(second)},
-            NewPlayers = State#state.players#{PlayerId => UpdatedPlayer},
+            NewPlayers = maps:put(PlayerId, UpdatedPlayer, State#state.players),
             {noreply, State#state{players = NewPlayers}};
         error ->
             {noreply, State}
@@ -118,6 +110,7 @@ code_change(_OldVsn, State, _Extra) ->
 
 %% 内部函数
 
+%% @doc 生成玩家ID
 generate_player_id() ->
     % 简单的ID生成，实际应该使用更复杂的算法
     erlang:system_time(millisecond) rem 1000000.
