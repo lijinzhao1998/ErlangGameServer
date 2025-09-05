@@ -34,7 +34,7 @@ loop(State = #{socket := Socket}) ->
 handle_call(_R, _F, State) -> {reply, ok, State}.
 handle_cast(_M, State) -> {noreply, State}.
 handle_info(_Info, State) -> {noreply, State}.
-terminate(_Reason, State = #{socket := Socket}) ->
+terminate(_Reason, #{socket := Socket}) ->
     catch gen_tcp:close(Socket),
     ok.
 code_change(_Old, State, _Extra) -> {ok, State}.

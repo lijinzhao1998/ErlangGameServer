@@ -41,7 +41,7 @@ handle_call({get_player, PlayerId}, _From, State) ->
 handle_call({create_player, PlayerData}, _From, State) ->
     PlayerId = generate_player_id(),
     NewPlayer = PlayerData#{id => PlayerId, created_at => erlang:system_time(second)},
-    NewPlayers = State#state.players#{PlayerId => NewPlayer},
+    NewPlayers = maps:put(PlayerId, NewPlayer, State#state.players),
     {reply, {ok, PlayerId}, State#state{players = NewPlayers}};
 
 handle_call({update_player, PlayerId, Updates}, _From, State) ->
@@ -82,7 +82,8 @@ handle_call(_Request, _From, State) ->
 
 handle_cast({player_login, PlayerId, PlayerData}, State) ->
     io:format("玩家 ~p 登录游戏~n", [PlayerId]),
-    NewPlayers = State#state.players#{PlayerId => PlayerData#{last_login => erlang:system_time(second)}},
+    UpdatedPlayerData = maps:put(last_login, erlang:system_time(second), PlayerData),
+    NewPlayers = maps:put(PlayerId, UpdatedPlayerData, State#state.players),
     {noreply, State#state{players = NewPlayers}};
 
 handle_cast({player_logout, PlayerId}, State) ->
@@ -119,4 +120,4 @@ code_change(_OldVsn, State, _Extra) ->
 
 generate_player_id() ->
     % 简单的ID生成，实际应该使用更复杂的算法
-    erlang:system_time(millisecond) rem 1000000. 
+    erlang:system_time(millisecond) rem 1000000.

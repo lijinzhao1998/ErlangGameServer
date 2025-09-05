@@ -113,7 +113,7 @@ read_exact(Socket, N, Acc) ->
                 L when L < N  -> read_exact(Socket, N - L, <<Acc/binary, Data/binary>>);
                 L when L > N  ->
                     %% gen_tcp:recv typically returns up to N bytes; in case of extra, slice.
-                    <<Part: N/binary, Rest/binary>> = Data,
+                    <<Part: N/binary, _Rest/binary>> = Data,
                     %% Note: Rest needs to be pushed back to a buffer or handled by active mode.
                     {ok, <<Acc/binary, Part/binary>>}
             end;
