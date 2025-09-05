@@ -252,14 +252,14 @@ start_services() ->
     case whereis(custom_logger) of
         undefined ->
             case custom_logger:start_link() of
-                {ok, _Pid} ->
+                {ok, _} ->
                     io:format("日志系统启动成功~n");
-                {error, {already_started, _Pid}} ->
+                {error, {already_started, _}} ->
                     io:format("日志系统已经运行~n");
-                {error, Reason} ->
-                    io:format("日志系统启动失败: ~p~n", [Reason])
+                {error, Reason1} ->
+                    io:format("日志系统启动失败: ~p~n", [Reason1])
             end;
-        _Pid ->
+        _ ->
             io:format("日志系统已经运行~n")
     end,
     
@@ -267,14 +267,14 @@ start_services() ->
     case whereis(id_generator) of
         undefined ->
             case id_generator:start_link() of
-                {ok, _Pid} ->
+                {ok, _} ->
                     io:format("ID生成器启动成功~n");
-                {error, {already_started, _Pid}} ->
+                {error, {already_started, _}} ->
                     io:format("ID生成器已经运行~n");
-                {error, Reason} ->
-                    io:format("ID生成器启动失败: ~p~n", [Reason])
+                {error, Reason2} ->
+                    io:format("ID生成器启动失败: ~p~n", [Reason2])
             end;
-        _Pid ->
+        _ ->
             io:format("ID生成器已经运行~n")
     end,
     
