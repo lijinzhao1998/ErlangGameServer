@@ -1,9 +1,12 @@
 -module(test_system).
--export([test_all/0, test_logger/0, test_id_generator/0, test_mdb/0, test_items_and_guilds/0, test_auth/0, test_player/0, demo/0]).
+-export([test_all/0, test_logger/0, test_id_generator/0, test_mdb/0, test_items_and_guilds/0, test_auth/0, test_player/0, demo/0, start_services/0]).
 
 %% 测试所有功能
 test_all() ->
     io:format("=== 开始测试所有系统功能 ===~n"),
+    
+    %% 首先启动必要的服务
+    start_services(),
     
     test_logger(),
     test_id_generator(),
@@ -18,24 +21,24 @@ test_all() ->
 test_logger() ->
     io:format("~n--- 测试日志系统 ---~n"),
     
-    logger:log_info("这是一条信息日志"),
-    logger:log_warning("这是一条警告日志"),
-    logger:log_error("这是一条错误日志"),
-    logger:log_debug("这是一条调试日志"),
+    custom_logger:log_info("这是一条信息日志"),
+    custom_logger:log_warning("这是一条警告日志"),
+    custom_logger:log_error("这是一条错误日志"),
+    custom_logger:log_debug("这是一条调试日志"),
     
-    logger:log(info, ?MODULE, "带模块名的日志"),
-    logger:log(error, ?MODULE, "带参数的日志: ~p", [test_data]),
+    custom_logger:log(info, ?MODULE, "带模块名的日志"),
+    custom_logger:log(error, ?MODULE, "带参数的日志: ~p", [test_data]),
     
     %% 测试带堆栈跟踪的日志
     try
         throw(test_exception)
     catch
         _:Reason:StackTrace ->
-            logger:log_with_stack(error, ?MODULE, "捕获到异常: ~p", [Reason], StackTrace)
+            custom_logger:log_with_stack(error, ?MODULE, "捕获到异常: ~p", [Reason], StackTrace)
     end,
     
     %% 测试带参数的堆栈日志
-    logger:log_with_stack(warning, ?MODULE, "警告消息: ~p", [warning_data], []),
+    custom_logger:log_with_stack(warning, ?MODULE, "警告消息: ~p", [warning_data], []),
     
     io:format("日志测试完成，请检查logs目录和控制台输出~n").
 
@@ -241,9 +244,49 @@ test_player() ->
     
     io:format("玩家进程测试完成~n").
 
+%% 启动必要的服务
+start_services() ->
+    io:format("~n--- 启动系统服务 ---~n"),
+    
+    %% 启动日志系统
+    case whereis(custom_logger) of
+        undefined ->
+            case custom_logger:start_link() of
+                {ok, _Pid} ->
+                    io:format("日志系统启动成功~n");
+                {error, {already_started, _Pid}} ->
+                    io:format("日志系统已经运行~n");
+                {error, Reason} ->
+                    io:format("日志系统启动失败: ~p~n", [Reason])
+            end;
+        _Pid ->
+            io:format("日志系统已经运行~n")
+    end,
+    
+    %% 启动ID生成器
+    case whereis(id_generator) of
+        undefined ->
+            case id_generator:start_link() of
+                {ok, _Pid} ->
+                    io:format("ID生成器启动成功~n");
+                {error, {already_started, _Pid}} ->
+                    io:format("ID生成器已经运行~n");
+                {error, Reason} ->
+                    io:format("ID生成器启动失败: ~p~n", [Reason])
+            end;
+        _Pid ->
+            io:format("ID生成器已经运行~n")
+    end,
+    
+    io:format("服务启动完成~n").
+
 %% 演示函数
 demo() ->
     io:format("~n=== 系统演示 ===~n"),
+    
+    %% 首先启动必要的服务
+    start_services(),
+    
     io:format("1. 测试日志系统...~n"),
     test_logger(),
     

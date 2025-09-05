@@ -70,20 +70,20 @@ generate_guild_id() ->
 init([]) ->
     %% 初始化ID计数器
     InitialState = init_id_counters(),
-    logger:log_info("ID生成器启动成功，初始状态: ~p", [InitialState]),
+    custom_logger:log_info("ID生成器启动成功，初始状态: ~p", [InitialState]),
     {ok, InitialState}.
 
 handle_call({generate_id, Type}, _From, State) ->
     case generate_next_id(Type, State) of
         {ok, NewId, NewState} ->
-            logger:log_debug("生成~p类型ID: ~p", [Type, NewId]),
+            custom_logger:log_debug("生成~p类型ID: ~p", [Type, NewId]),
             {reply, {ok, NewId}, NewState};
         {error, Reason} ->
-            logger:log_error("生成~p类型ID失败: ~p", [Type, Reason]),
+            custom_logger:log_error("生成~p类型ID失败: ~p", [Type, Reason]),
             {reply, {error, Reason}, State}
     end;
 handle_call(stop, _From, State) ->
-    logger:log_info("ID生成器停止"),
+    custom_logger:log_info("ID生成器停止"),
     {stop, normal, ok, State};
 handle_call(_Request, _From, State) ->
     {reply, ok, State}.
@@ -95,7 +95,7 @@ handle_info(_Info, State) ->
     {noreply, State}.
 
 terminate(_Reason, _State) ->
-    logger:log_info("ID生成器已停止"),
+    custom_logger:log_info("ID生成器已停止"),
     ok.
 
 code_change(_OldVsn, State, _Extra) ->
@@ -109,7 +109,7 @@ init_id_counters() ->
             merge_with_defaults(ExistingIds);
         {error, _Reason} ->
             %% 如果加载失败，使用默认值
-            logger:log_warning("无法加载现有ID，使用默认值"),
+            custom_logger:log_warning("无法加载现有ID，使用默认值"),
             ?DEFAULT_START_IDS
     end.
 
@@ -127,7 +127,7 @@ load_existing_ids() ->
         {ok, Ids}
     catch
         _:Reason ->
-            logger:log_error("加载现有ID时发生错误: ~p", [Reason]),
+            custom_logger:log_error("加载现有ID时发生错误: ~p", [Reason]),
             {error, Reason}
     end.
 

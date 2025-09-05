@@ -9,7 +9,7 @@ start_link() ->
 
 init([]) ->
     %% 启动日志系统
-    Logger = {logger, {logger, start_link, []}, permanent, 5000, worker, [logger]},
+    Logger = {custom_logger, {custom_logger, start_link, []}, permanent, 5000, worker, [custom_logger]},
     
     %% 启动ID生成器
     IdGenerator = {id_generator, {id_generator, start_link, []}, permanent, 5000, worker, [id_generator]},

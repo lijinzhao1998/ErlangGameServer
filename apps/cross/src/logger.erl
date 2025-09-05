@@ -1,4 +1,4 @@
--module(logger).
+-module(custom_logger).
 -behaviour(gen_server).
 
 -export([start_link/0, stop/0]).
